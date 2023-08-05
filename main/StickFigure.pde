@@ -30,6 +30,7 @@ public class StickFigure  {
         final float inseam_x = this.chest_x;
         final float inseam_y = this.chest_y + 45;
         // DRAW HEAD
+        fill(255);
         ellipseMode(CENTER);
         ellipse(head_x, head_y, HEAD_DIAMETER, HEAD_DIAMETER);
         // DRAW NECK

@@ -3,31 +3,54 @@ final float ACTION_DIPLAY_Y = 30;
 final float ACTION_DIPLAY_WIDTH = 200;
 final float ACTION_DIPLAY_HEIGHT = 150;
 StickFigure stickFigure;
+Stage stage;
+int goal_time_seconds = -1;
 
 void setup() {
     size(800, 700);
     smooth();
-    background(136, 185, 197, 100);
+    stickFigure = new StickFigure(width / 2.0 - 100.0, height * 2.0 / 3.0);
+    stage = new Stage(stickFigure.getUnderFootCoordY());
 }
 
 void draw() {
-    final int x = 250;
-    final int y = 250;
-    stickFigure = new StickFigure(width / 2 - 100, height * 2 / 3);
-    stickFigure.draw();
+    if (stage.doGoal(stickFigure)) {
+        if (goal_time_seconds == -1) {
+            goal_time_seconds = millis();
+            return;
+        }
+        if (millis() - goal_time_seconds <= 2000) {
+            background(220);
+            textAlign(CENTER, CENTER);
+            textSize(100);
+            fill(0);
+            text("GOAL!!", width / 2, height / 2);
+        } else {
+            exit();
+        }
+        return;
+    }
+    background(136, 185, 197, 100);
     diplayActionFrame();
+    stickFigure.draw();
+    stage.draw();
 }
 
 void keyPressed() {
+    if (goal_time_seconds != -1) {
+        return;
+    }
     if (key != CODED && key == ' ') {
         diplayActionFigure(ActionButton.SPACE);
     } else if (key == CODED) {
         switch(keyCode) {
             case LEFT:
                 diplayActionFigure(ActionButton.LEFT_ARROW);
+                stage.moveStage(ActionButton.LEFT_ARROW);
                 break;
             case RIGHT:
                 diplayActionFigure(ActionButton.RIGHT_ARROW);
+                stage.moveStage(ActionButton.RIGHT_ARROW);
                 break;
         }
     }

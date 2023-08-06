@@ -1,7 +1,7 @@
 public class Stage {
     
     private final int COLOR_OF_STAGE = #BA5039;
-    private final int COLOR_OF_HOLE = #CAF5F5;
+    private final int COLOR_OF_HOLE = #DACCB5;
     private final int COLOR_OF_FLAG = #F84157;
     private final int COLOR_OF_WALL = #BBA1A4;
     private final float MOVE_SPEED = 10;

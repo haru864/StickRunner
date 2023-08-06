@@ -2,6 +2,7 @@ final float ACTION_DIPLAY_X = 570;
 final float ACTION_DIPLAY_Y = 30;
 final float ACTION_DIPLAY_WIDTH = 200;
 final float ACTION_DIPLAY_HEIGHT = 150;
+final int COLOR_OF_GAME_BACKGROUND = #A6F0F7;
 StickFigure stickFigure;
 Stage stage;
 int goal_time_seconds = -1;
@@ -19,7 +20,7 @@ void draw() {
             goal_time_seconds = millis();
             return;
         }
-        if (millis() - goal_time_seconds <= 1500) {
+        if (millis() - goal_time_seconds <= 1000) {
             background(220);
             textAlign(CENTER, CENTER);
             textSize(100);
@@ -30,8 +31,9 @@ void draw() {
         }
         return;
     }
-    background(136, 185, 197, 100);
+    background(COLOR_OF_GAME_BACKGROUND);
     diplayActionFrame();
+    stickFigure.action();
     stickFigure.draw();
     stage.draw();
 }
@@ -42,15 +44,18 @@ void keyPressed() {
     }
     if (key != CODED && key == ' ') {
         diplayActionFigure(ActionButton.SPACE);
+        stickFigure.changeAction(ActionButton.SPACE);
     } else if (key == CODED) {
         switch(keyCode) {
             case LEFT:
                 diplayActionFigure(ActionButton.LEFT_ARROW);
                 stage.moveStage(ActionButton.LEFT_ARROW, stickFigure);
+                stickFigure.changeAction(ActionButton.LEFT_ARROW);
                 break;
             case RIGHT:
                 diplayActionFigure(ActionButton.RIGHT_ARROW);
                 stage.moveStage(ActionButton.RIGHT_ARROW, stickFigure);
+                stickFigure.changeAction(ActionButton.RIGHT_ARROW);
                 break;
         }
     }

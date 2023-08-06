@@ -19,7 +19,7 @@ void draw() {
             goal_time_seconds = millis();
             return;
         }
-        if (millis() - goal_time_seconds <= 2000) {
+        if (millis() - goal_time_seconds <= 1500) {
             background(220);
             textAlign(CENTER, CENTER);
             textSize(100);
@@ -46,11 +46,11 @@ void keyPressed() {
         switch(keyCode) {
             case LEFT:
                 diplayActionFigure(ActionButton.LEFT_ARROW);
-                stage.moveStage(ActionButton.LEFT_ARROW);
+                stage.moveStage(ActionButton.LEFT_ARROW, stickFigure);
                 break;
             case RIGHT:
                 diplayActionFigure(ActionButton.RIGHT_ARROW);
-                stage.moveStage(ActionButton.RIGHT_ARROW);
+                stage.moveStage(ActionButton.RIGHT_ARROW, stickFigure);
                 break;
         }
     }

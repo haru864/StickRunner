@@ -1,3 +1,5 @@
+import java.util.HashSet;
+
 public class Stage {
     
     private final int COLOR_OF_STAGE = #BA5039;
@@ -19,9 +21,19 @@ public class Stage {
             add(1400.0);
         }
     };
+    private final HashSet<Integer> HOLE_X_SET = new HashSet<>();
     
     public Stage(final float underfoot_y) {
         SURFACE_HEIGHT = height - underfoot_y;
+        for (float holeLeftEdge : HOLE_LEFT_EDGE_X_LIST) {
+            for (int diff_x = 0; diff_x <= HOLE_WIDTH; diff_x++) {
+                HOLE_X_SET.add((int)holeLeftEdge + diff_x);
+            }
+        }
+    }
+    
+    public boolean isHoleX(float x) {
+        return HOLE_X_SET.contains(int(x));
     }
     
     public void draw() {

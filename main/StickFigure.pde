@@ -6,8 +6,7 @@ public class StickFigure  {
     private final float DISTANCE_FROM_INSEAM_TO_FOOT = 50;
     private final float MOVE_SPEED = 5;
     private final float HITBOX_WIDTH = 60;
-    private float goal_x;
-    private float wall_x;
+    private Stage stage;
     private float chest_x;
     private float chest_y;
     private float initial_chest_y;
@@ -25,13 +24,12 @@ public class StickFigure  {
         this.status = StickFigureStatus.STOPPED;
     }
     
-    public void updateObjectCoord(float goal_x, float wall_x) {
-        this.goal_x = goal_x;
-        this.wall_x = wall_x;
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
     
     public boolean isGoal() {
-        return chest_x - HITBOX_WIDTH / 2 > goal_x;
+        return(chest_x - HITBOX_WIDTH / 2) > stage.GOAL_FLAG_X;
     }
     
     public void moveLeft() {
@@ -67,6 +65,15 @@ public class StickFigure  {
         velocity_y = 0;
     }
     
+    private void freefall() {
+        if (isOnHole() == false) {
+            return;
+        }
+        status = StickFigureStatus.FALLING;
+        velocity_y += gravity;
+        chest_y += velocity_y;
+    }
+    
     public float getChestCoordX() {
         return chest_x;
     }
@@ -75,23 +82,53 @@ public class StickFigure  {
         return chest_y + DISTANCE_FROM_CHEST_TO_INSEAM + DISTANCE_FROM_INSEAM_TO_FOOT;
     }
     
+    public float getTopOfHeadCoordY() {
+        return chest_y - NECK_LENGTH - HEAD_DIAMETER;
+    }
+    
+    public boolean isOnHole() {
+        return stage.isHoleX(chest_x) && chest_y >= initial_chest_y;
+    }
+    
+    public boolean isFallen() {
+        return getTopOfHeadCoordY() > height;
+    }
+    
     public void draw() {
         println(stickFigure.status);
         if (status == StickFigureStatus.JUMPING) {
-            if (chest_y > initial_chest_y) {
-                chest_y = initial_chest_y;
-                status = StickFigureStatus.STOPPED;
-                velocity_y = 0;
-            } else {
-                velocity_y += gravity;
-                chest_y += velocity_y;
+            if (chest_x - HITBOX_WIDTH / 2 + (velocity_x * - 1)
+                > stage.START_WALL_X + stage.START_WALL_WIDTH) {
+                scrolled_x += velocity_x;
+                chest_x += (velocity_x * - 1);
             }
-        }
-        if (chest_x - HITBOX_WIDTH / 2 > wall_x + velocity_x) {
-            scrolled_x += velocity_x;
-            chest_x += (velocity_x * - 1);
-        } else {
-            stop();
+            chest_y += velocity_y;
+            velocity_y += gravity;
+            if (chest_y >= initial_chest_y) {
+                if (velocity_x > 0) {
+                    status = StickFigureStatus.RUNNING_LEFT;
+                } else if (velocity_x < 0) {
+                    status = StickFigureStatus.RUNNING_RIGHT;
+                } else if (isOnHole() == true) {
+                    status = StickFigureStatus.FALLING;
+                } else {
+                    status = StickFigureStatus.STOPPED;
+                }
+            }
+        } else if (status == StickFigureStatus.FALLING) {
+            freefall();
+        } else if (status == StickFigureStatus.STOPPED) {
+            freefall();
+        } else if (status == StickFigureStatus.RUNNING_LEFT
+            || status == StickFigureStatus.RUNNING_RIGHT) {
+            freefall();
+            if (chest_x - HITBOX_WIDTH / 2 + (velocity_x * - 1)
+                > stage.START_WALL_X + stage.START_WALL_WIDTH) {
+                scrolled_x += velocity_x;
+                chest_x += (velocity_x * - 1);
+            } else {
+                stop();
+            }
         }
         translate(scrolled_x, 0);
         switch(status) {
@@ -106,6 +143,9 @@ public class StickFigure  {
                 break;	
             case JUMPING :
                 drawJumpingBody();
+                break;
+            case FALLING :
+                drawFallingBody();
                 break;
         }
     }
@@ -137,6 +177,10 @@ public class StickFigure  {
     }
     
     private void drawJumpingBody() {
+        drawStoppedBody();
+    }
+    
+    private void drawFallingBody() {
         drawStoppedBody();
     }
 }

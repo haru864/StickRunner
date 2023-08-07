@@ -1,7 +1,3 @@
-final float ACTION_DIPLAY_X = 570;
-final float ACTION_DIPLAY_Y = 30;
-final float ACTION_DIPLAY_WIDTH = 200;
-final float ACTION_DIPLAY_HEIGHT = 150;
 final int COLOR_OF_GAME_BACKGROUND = #A6F0F7;
 StickFigure stickFigure;
 Stage stage;
@@ -12,10 +8,11 @@ void setup() {
     smooth();
     stickFigure = new StickFigure(width / 2.0 - 100.0, height * 2.0 / 3.0);
     stage = new Stage(stickFigure.getUnderFootCoordY());
+    stickFigure.updateObjectCoord(stage.GOAL_FLAG_X, stage.START_WALL_X + stage.START_WALL_WIDTH);
 }
 
 void draw() {
-    if (stage.doGoal(stickFigure)) {
+    if (stickFigure.isGoal() == true) {
         if (goal_time_seconds == -1) {
             goal_time_seconds = millis();
             return;
@@ -32,8 +29,6 @@ void draw() {
         return;
     }
     background(COLOR_OF_GAME_BACKGROUND);
-    diplayActionFrame();
-    stickFigure.action();
     stickFigure.draw();
     stage.draw();
 }
@@ -43,42 +38,18 @@ void keyPressed() {
         return;
     }
     if (key != CODED && key == ' ') {
-        diplayActionFigure(ActionButton.SPACE);
-        stickFigure.changeAction(ActionButton.SPACE);
+        stickFigure.jump();
     } else if (key == CODED) {
         switch(keyCode) {
             case LEFT:
-                diplayActionFigure(ActionButton.LEFT_ARROW);
-                stage.moveStage(ActionButton.LEFT_ARROW, stickFigure);
-                stickFigure.changeAction(ActionButton.LEFT_ARROW);
+                stickFigure.moveLeft();
                 break;
             case RIGHT:
-                diplayActionFigure(ActionButton.RIGHT_ARROW);
-                stage.moveStage(ActionButton.RIGHT_ARROW, stickFigure);
-                stickFigure.changeAction(ActionButton.RIGHT_ARROW);
+                stickFigure.moveRight();
+                break;
+            case DOWN:
+                stickFigure.stop();
                 break;
         }
-    }
-}
-
-void diplayActionFrame() {
-    rectMode(CORNER);
-    fill(136, 185, 197);
-    rect(ACTION_DIPLAY_X, ACTION_DIPLAY_Y, ACTION_DIPLAY_WIDTH, ACTION_DIPLAY_HEIGHT);
-}
-
-void diplayActionFigure(ActionButton actBtn) {
-    rectMode(CORNER);
-    fill(153);
-    switch(actBtn) {
-        case LEFT_ARROW:
-            triangle(ACTION_DIPLAY_X + 150, ACTION_DIPLAY_Y + 20, ACTION_DIPLAY_X + 150, ACTION_DIPLAY_Y + 120, ACTION_DIPLAY_X + 50, ACTION_DIPLAY_Y + 70);
-            break;
-        case RIGHT_ARROW:
-            triangle(ACTION_DIPLAY_X + 50, ACTION_DIPLAY_Y + 20, ACTION_DIPLAY_X + 50, ACTION_DIPLAY_Y + 120, ACTION_DIPLAY_X + 150, ACTION_DIPLAY_Y + 70);
-            break;
-        case SPACE:
-            triangle(ACTION_DIPLAY_X + ACTION_DIPLAY_WIDTH / 2.0, ACTION_DIPLAY_Y + 20, ACTION_DIPLAY_X + 50, ACTION_DIPLAY_Y + 120, ACTION_DIPLAY_X + 150, ACTION_DIPLAY_Y + 120);
-            break;
     }
 }

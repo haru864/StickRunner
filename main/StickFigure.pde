@@ -4,65 +4,67 @@ public class StickFigure  {
     private final float NECK_LENGTH = 18;
     private final float DISTANCE_FROM_CHEST_TO_INSEAM = 45;
     private final float DISTANCE_FROM_INSEAM_TO_FOOT = 50;
+    private final float MOVE_SPEED = 5;
+    private final float HITBOX_WIDTH = 60;
+    private float goal_x;
+    private float wall_x;
     private float chest_x;
     private float chest_y;
-    private float not_jumping_chest_y;
+    private float initial_chest_y;
     private StickFigureStatus status;
-    private int last_moved_seconds = -1;
-    private float jump_velocity_y = 0; // オブジェクトの垂直方向の速度
-    private float jump_velocity_x = 5; // オブジェクトの水平方向の移動速度
+    private float velocity_y = 0; // 垂直方向の移動速度
+    private float velocity_x = 0;
+    private float scrolled_x = 0;
     private float gravity = 0.5; // 重力
-    private float initial_jump_velocity = -15; // ジャンプ時の初速度
-    private int jump_direction = 0; // ジャンプの方向: -1 = 左, 1 = 右, 0 = 静止
+    private float initial_jump_velocity_y = -15; // ジャンプ時の初速度
     
     public StickFigure(float chest_x, float chest_y) {
         this.chest_x = chest_x;
         this.chest_y = chest_y;
-        this.not_jumping_chest_y = chest_y;
+        this.initial_chest_y = chest_y;
         this.status = StickFigureStatus.STOPPED;
     }
     
-    public void action() {
-        println("status: " + stickFigure.status + ",  chest_y: " + chest_y);
-        if (status != StickFigureStatus.JUMPING
-            && millis() - last_moved_seconds > 100) {
-            status = StickFigureStatus.STOPPED;
-            last_moved_seconds = -1;
-        }
-        if (status == StickFigureStatus.JUMPING) {
-            if (chest_y > not_jumping_chest_y) {
-                chest_y = not_jumping_chest_y;
-                jump_velocity_y = 0;
-                jump_direction = 0;
-                status = StickFigureStatus.STOPPED;
-            } else {
-                jump_velocity_y += gravity;
-                chest_y += jump_velocity_y;
-                chest_x += jump_direction * jump_velocity_x;
-            }
-        }
+    public void updateObjectCoord(float goal_x, float wall_x) {
+        this.goal_x = goal_x;
+        this.wall_x = wall_x;
     }
     
-    public void changeAction(ActionButton actBtn) {
-        if (actBtn == ActionButton.LEFT_ARROW) {
-            status = StickFigureStatus.RUNNING_LEFT;
-            last_moved_seconds = millis();
+    public boolean isGoal() {
+        return chest_x - HITBOX_WIDTH / 2 > goal_x;
+    }
+    
+    public void moveLeft() {
+        if (status == StickFigureStatus.JUMPING) {
+            return;
         }
-        if (actBtn == ActionButton.RIGHT_ARROW) {
-            status = StickFigureStatus.RUNNING_RIGHT;
-            last_moved_seconds = millis();
+        status = StickFigureStatus.RUNNING_LEFT;
+        velocity_x = MOVE_SPEED;
+    }
+    
+    public void moveRight() {
+        if (status == StickFigureStatus.JUMPING) {
+            return;
         }
-        if (actBtn == ActionButton.SPACE) {
-            if (status == StickFigureStatus.RUNNING_LEFT) {
-                jump_direction = -1;
-            } else if (status == StickFigureStatus.RUNNING_RIGHT) {
-                jump_direction = 1;
-            } else if (status == StickFigureStatus.STOPPED) {
-                jump_direction = 0;
-            }
-            status = StickFigureStatus.JUMPING;
-            jump_velocity_y = initial_jump_velocity;
+        status = StickFigureStatus.RUNNING_RIGHT;
+        velocity_x = -1 * MOVE_SPEED;
+    }
+    
+    public void jump() {
+        if (status == StickFigureStatus.JUMPING) {
+            return;
         }
+        status = StickFigureStatus.JUMPING;
+        velocity_y = initial_jump_velocity_y;
+    }
+    
+    public void stop() {
+        if (status == StickFigureStatus.JUMPING) {
+            return;
+        }
+        status = StickFigureStatus.STOPPED;
+        velocity_x = 0;
+        velocity_y = 0;
     }
     
     public float getChestCoordX() {
@@ -74,6 +76,24 @@ public class StickFigure  {
     }
     
     public void draw() {
+        println(stickFigure.status);
+        if (status == StickFigureStatus.JUMPING) {
+            if (chest_y > initial_chest_y) {
+                chest_y = initial_chest_y;
+                status = StickFigureStatus.STOPPED;
+                velocity_y = 0;
+            } else {
+                velocity_y += gravity;
+                chest_y += velocity_y;
+            }
+        }
+        if (chest_x - HITBOX_WIDTH / 2 > wall_x + velocity_x) {
+            scrolled_x += velocity_x;
+            chest_x += (velocity_x * - 1);
+        } else {
+            stop();
+        }
+        translate(scrolled_x, 0);
         switch(status) {
             case STOPPED :
                 drawStoppedBody();

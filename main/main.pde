@@ -13,6 +13,8 @@ void setup() {
     stickFigure.setStage(stage);
 }
 
+int x = 0;
+int vx = -3;
 void draw() {
     if (stickFigure.isGoal() == true) {
         if (goal_time_seconds == -1) {
@@ -38,10 +40,10 @@ void draw() {
         text("PRESS ENTER TO RETRY,\nOTHERS TO CLOSE", width / 2, height / 2 + TEXT_SIZE_BIG * 0.5);
         return;
     }
+    stickFigure.action();
     background(COLOR_OF_GAME_BACKGROUND);
-    stickFigure.draw();
     stage.draw();
-    // stickFigure.draw();
+    stickFigure.draw();
 }
 
 void keyPressed() {

@@ -38,6 +38,7 @@ public class StickFigure  {
         }
         status = StickFigureStatus.RUNNING_LEFT;
         velocity_x = MOVE_SPEED;
+        velocity_y = 0;
     }
     
     public void moveRight() {
@@ -46,6 +47,7 @@ public class StickFigure  {
         }
         status = StickFigureStatus.RUNNING_RIGHT;
         velocity_x = -1 * MOVE_SPEED;
+        velocity_y = 0;
     }
     
     public void jump() {
@@ -94,8 +96,8 @@ public class StickFigure  {
         return getTopOfHeadCoordY() > height;
     }
     
-    public void draw() {
-        println(stickFigure.status);
+    public void action() {
+        println("status:" + stickFigure.status + ", vy:" + velocity_y);
         if (status == StickFigureStatus.JUMPING) {
             if (chest_x - HITBOX_WIDTH / 2 + (velocity_x * - 1)
                 > stage.START_WALL_X + stage.START_WALL_WIDTH) {
@@ -104,11 +106,13 @@ public class StickFigure  {
             }
             chest_y += velocity_y;
             velocity_y += gravity;
-            if (chest_y >= initial_chest_y) {
+            if (chest_y >= initial_chest_y && isOnHole() == false) {
                 if (velocity_x > 0) {
                     status = StickFigureStatus.RUNNING_LEFT;
+                    moveLeft();
                 } else if (velocity_x < 0) {
                     status = StickFigureStatus.RUNNING_RIGHT;
+                    moveRight();
                 } else if (isOnHole() == true) {
                     status = StickFigureStatus.FALLING;
                 } else {
@@ -131,6 +135,9 @@ public class StickFigure  {
             }
         }
         translate(scrolled_x, 0);
+    }
+    
+    public void draw() {
         switch(status) {
             case STOPPED :
                 drawStoppedBody();
@@ -181,6 +188,24 @@ public class StickFigure  {
     }
     
     private void drawFallingBody() {
-        drawStoppedBody();
+        final float head_x = chest_x;
+        final float head_y = chest_y - NECK_LENGTH - HEAD_DIAMETER * 0.5;
+        final float inseam_x = chest_x;
+        final float inseam_y = chest_y + DISTANCE_FROM_CHEST_TO_INSEAM;
+        // DRAW HEAD
+        fill(255);
+        ellipseMode(CENTER);
+        ellipse(head_x, head_y, HEAD_DIAMETER, HEAD_DIAMETER);
+        // DRAW NECK
+        strokeWeight(2);
+        line(chest_x, chest_y, head_x, chest_y - NECK_LENGTH);
+        // DRAW ARMS
+        line(chest_x, chest_y, chest_x - 30, chest_y - 30);
+        line(chest_x, chest_y, chest_x + 30, chest_y - 30);
+        // DRAW Torso
+        line(chest_x, chest_y, inseam_x, inseam_y);
+        // DRAW LEGS
+        line(inseam_x, inseam_y, inseam_x - 35, inseam_y + DISTANCE_FROM_INSEAM_TO_FOOT);
+        line(inseam_x, inseam_y, inseam_x + 35, inseam_y + DISTANCE_FROM_INSEAM_TO_FOOT);
     }
 }

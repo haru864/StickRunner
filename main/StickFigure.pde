@@ -117,6 +117,7 @@ public class StickFigure  {
                     status = StickFigureStatus.FALLING;
                 } else {
                     status = StickFigureStatus.STOPPED;
+                    stop();
                 }
             }
         } else if (status == StickFigureStatus.FALLING) {
@@ -184,7 +185,50 @@ public class StickFigure  {
     }
     
     private void drawJumpingBody() {
-        drawStoppedBody();
+        if (velocity_x == 0) {
+            drawFallingBody();
+        }
+        final float head_x = chest_x;
+        final float head_y = chest_y - NECK_LENGTH - HEAD_DIAMETER * 0.5;
+        final float inseam_x = chest_x;
+        final float inseam_y = chest_y + DISTANCE_FROM_CHEST_TO_INSEAM;
+        final float directionalCorrection = -1 * velocity_x  /abs(velocity_x);
+        println("directionalCorrection:" + directionalCorrection);
+        // DRAW HEAD
+        fill(255);
+        ellipseMode(CENTER);
+        ellipse(head_x, head_y, HEAD_DIAMETER, HEAD_DIAMETER);
+        // DRAW NECK
+        strokeWeight(2);
+        line(chest_x, chest_y, head_x, chest_y - NECK_LENGTH);
+        // DRAW ARMS
+        float front_elbow_x = chest_x + 15 * directionalCorrection;
+        float front_elbow_y = chest_y + 10;
+        float front_hand_x = chest_x + 30 * directionalCorrection;
+        float front_hand_y = chest_y - 10;
+        float back_elbow_x = chest_x - 15 * directionalCorrection;
+        float back_elbow_y = chest_y - 10;
+        float back_hand_x = chest_x - 30 * directionalCorrection;
+        float back_hand_y = chest_y + 10;
+        line(chest_x, chest_y, front_elbow_x, front_elbow_y);
+        line(front_elbow_x, front_elbow_y, front_hand_x, front_hand_y);
+        line(chest_x, chest_y, back_elbow_x, back_elbow_y);
+        line(back_elbow_x, back_elbow_y, back_hand_x, back_hand_y);
+        // DRAW Torso
+        line(chest_x, chest_y, inseam_x, inseam_y);
+        // DRAW LEGS
+        float front_knee_x = inseam_x + 20 * directionalCorrection;
+        float front_knee_y = inseam_y - 10;
+        float front_toes_x = inseam_x + 35 * directionalCorrection;
+        float front_toes_y = inseam_y + 15;
+        float back_knee_x = inseam_x - 10 * directionalCorrection;
+        float back_knee_y = inseam_y + 15;
+        float back_toes_x = inseam_x - 35 * directionalCorrection;
+        float back_toes_y = inseam_y + 5;
+        line(inseam_x, inseam_y, front_knee_x, front_knee_y);
+        line(front_knee_x, front_knee_y, front_toes_x, front_toes_y);
+        line(inseam_x, inseam_y, back_knee_x, back_knee_y);
+        line(back_knee_x, back_knee_y, back_toes_x, back_toes_y);
     }
     
     private void drawFallingBody() {

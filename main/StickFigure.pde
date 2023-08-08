@@ -92,6 +92,22 @@ public class StickFigure  {
         return stage.isHoleX(chest_x) && chest_y >= initial_chest_y;
     }
     
+    public boolean doPassStartWall() {
+        float future_body_left_edge_x = chest_x - HITBOX_WIDTH / 2 + (velocity_x * - 1);
+        float start_wall_right_edge_x = stage.START_WALL_X + stage.START_WALL_WIDTH;
+        return future_body_left_edge_x <= start_wall_right_edge_x;
+    }
+    
+    public boolean doPassHoleWall() {
+        if (chest_y <= initial_chest_y) {
+            return false;
+        }
+        float future_body_left_edge_x = chest_x - HITBOX_WIDTH / 2 + (abs(velocity_x) * - 1);
+        float future_body_right_edge_x = chest_x + HITBOX_WIDTH / 2 + abs(velocity_x);
+        return stage.isHoleX(future_body_left_edge_x) == true
+            || stage.isHoleX(future_body_right_edge_x) == true;
+    }
+    
     public boolean isFallen() {
         return getTopOfHeadCoordY() > height;
     }
@@ -99,8 +115,8 @@ public class StickFigure  {
     public void action() {
         println("status:" + stickFigure.status + ", vy:" + velocity_y);
         if (status == StickFigureStatus.JUMPING) {
-            if (chest_x - HITBOX_WIDTH / 2 + (velocity_x * - 1)
-                > stage.START_WALL_X + stage.START_WALL_WIDTH) {
+            if (doPassStartWall() == false && doPassHoleWall() == false) {
+                // if (doPassStartWall() == false) {
                 scrolled_x += velocity_x;
                 chest_x += (velocity_x * - 1);
             }
@@ -192,7 +208,7 @@ public class StickFigure  {
         final float head_y = chest_y - NECK_LENGTH - HEAD_DIAMETER * 0.5;
         final float inseam_x = chest_x;
         final float inseam_y = chest_y + DISTANCE_FROM_CHEST_TO_INSEAM;
-        final float directionalCorrection = -1 * velocity_x  /abs(velocity_x);
+        final float directionalCorrection = -1 * velocity_x  / abs(velocity_x);
         println("directionalCorrection:" + directionalCorrection);
         // DRAW HEAD
         fill(255);

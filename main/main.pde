@@ -3,7 +3,6 @@ final int TEXT_SIZE_BIG = 100;
 final int TEXT_SIZE_SMALL = 30;
 StickFigure stickFigure;
 Stage stage;
-int goal_time_seconds = -1;
 
 void setup() {
     size(800, 700);
@@ -17,18 +16,12 @@ int x = 0;
 int vx = -3;
 void draw() {
     if (stickFigure.isGoal() == true) {
-        if (goal_time_seconds == -1) {
-            goal_time_seconds = millis();
-        }
-        if (millis() - goal_time_seconds <= 1000) {
-            background(220);
-            textAlign(CENTER, CENTER);
-            textSize(TEXT_SIZE_BIG);
-            fill(0);
-            text("GOAL!!", width / 2, height / 2);
-        } else {
-            exit();
-        }
+        textAlign(CENTER, CENTER);
+        textSize(TEXT_SIZE_BIG);
+        fill(0);
+        text("GOAL!!", width / 2, height / 2 - TEXT_SIZE_BIG * 0.7);
+        textSize(TEXT_SIZE_SMALL);
+        text("PRESS ANY KEY TO CLOSE", width / 2, height / 2 + TEXT_SIZE_BIG * 0.5);
         return;
     }
     if (stickFigure.isFallen() == true) {
@@ -48,7 +41,7 @@ void draw() {
 
 void keyPressed() {
     if (stickFigure.isGoal() == true) {
-        return;
+        exit();
     }
     if (stickFigure.isFallen() == true) {
         if (key != CODED && key == ENTER) {

@@ -16,6 +16,11 @@ public class StickFigure  {
     private float scrolled_x = 0;
     private float gravity = 0.5; // 重力
     private float initial_jump_velocity_y = -15; // ジャンプ時の初速度
+    float duration = 50;
+    float deg = duration * 0.3;
+    float minAngle = 0.2 * PI;
+    float maxAngle = 0.8 * PI;
+    float length = 40;
     
     public StickFigure(float chest_x, float chest_y) {
         this.chest_x = chest_x;
@@ -116,7 +121,6 @@ public class StickFigure  {
         println("status:" + stickFigure.status + ", vy:" + velocity_y);
         if (status == StickFigureStatus.JUMPING) {
             if (doPassStartWall() == false && doPassHoleWall() == false) {
-                // if (doPassStartWall() == false) {
                 scrolled_x += velocity_x;
                 chest_x += (velocity_x * - 1);
             }
@@ -197,19 +201,47 @@ public class StickFigure  {
     }
     
     private void drawRunningBody() {
-        drawStoppedBody();
+        final float head_x = chest_x;
+        final float head_y = chest_y - NECK_LENGTH - HEAD_DIAMETER * 0.5;
+        final float inseam_x = chest_x;
+        final float inseam_y = chest_y + DISTANCE_FROM_CHEST_TO_INSEAM;
+        // DRAW HEAD
+        fill(255);
+        ellipseMode(CENTER);
+        ellipse(head_x, head_y, HEAD_DIAMETER, HEAD_DIAMETER);
+        // DRAW NECK
+        strokeWeight(2);
+        line(chest_x, chest_y, head_x, chest_y - NECK_LENGTH);
+        
+        // DRAW ARMS
+        float percentage_left = abs(deg) / duration;
+        float angle_left = map(percentage_left, 0, 1, minAngle, maxAngle);
+        deg--;
+        if (deg < - 1 * duration) {
+            deg = duration;
+        }
+        float x_left = length * cos(angle_left);
+        float y_left = length * sin(angle_left);
+        float x_right = length * cos(angle_left + PI);
+        float y_right = length * sin(angle_left + PI);
+        line(chest_x, chest_y, x_left + chest_x, abs(y_left) + chest_y);
+        line(chest_x, chest_y, x_right + chest_x, abs(y_right) + chest_y);
+        // DRAW Torso
+        line(chest_x, chest_y, inseam_x, inseam_y);
+        // DRAW LEGS
+        line(inseam_x, inseam_y, x_left * 1.2 + inseam_x, abs(y_left) * 1.2 + inseam_y);
+        line(inseam_x, inseam_y, x_right * 1.2 + inseam_x, abs(y_right) * 1.2 + inseam_y);
     }
     
     private void drawJumpingBody() {
         if (velocity_x == 0) {
             drawFallingBody();
         }
+        final float directionalCorrection = -1 * velocity_x  / abs(velocity_x);
         final float head_x = chest_x;
         final float head_y = chest_y - NECK_LENGTH - HEAD_DIAMETER * 0.5;
         final float inseam_x = chest_x;
         final float inseam_y = chest_y + DISTANCE_FROM_CHEST_TO_INSEAM;
-        final float directionalCorrection = -1 * velocity_x  / abs(velocity_x);
-        println("directionalCorrection:" + directionalCorrection);
         // DRAW HEAD
         fill(255);
         ellipseMode(CENTER);

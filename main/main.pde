@@ -14,7 +14,7 @@ void setup() {
 
 void draw() {
     if (stickFigure.isGoal() == true) {
-        displayMessage("GOAL!!", "PRESS ANY KEY TO CLOSE", #D6F920);
+        displayMessage("GOAL!!", "PRESS ANY KEY TO CLOSE", color(214, 249, 32));
         return;
     }
     if (stickFigure.isFallen() == true) {
@@ -57,9 +57,9 @@ void keyPressed() {
     }
 }
 
-void displayMessage(String title, String message, int...hexColorCode) {
-    if (hexColorCode.length == 1) {
-        background(hexColorCode[0]);
+void displayMessage(String title, String message, color...backGroundColor) {
+    if (backGroundColor.length != 0) {
+        background(backGroundColor[0]);
     }
     textAlign(CENTER, CENTER);
     textSize(TEXT_SIZE_BIG);

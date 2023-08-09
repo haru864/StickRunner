@@ -11,11 +11,11 @@ public class StickFigure  {
     private float chest_y;
     private float initial_chest_y;
     private StickFigureStatus status;
-    private float velocity_y = 0; // 垂直方向の移動速度
+    private float velocity_y = 0;
     private float velocity_x = 0;
     private float scrolled_x = 0;
-    private float gravity = 0.5; // 重力
-    private float initial_jump_velocity_y = -15; // ジャンプ時の初速度
+    private float gravity = 0.5;
+    private float initial_jump_velocity_y = -15;
     float duration = 50;
     float deg = duration * 0.3;
     float minAngle = 0.2 * PI;
@@ -38,38 +38,43 @@ public class StickFigure  {
     }
     
     public void moveLeft() {
-        if (status == StickFigureStatus.JUMPING) {
-            return;
-        }
-        status = StickFigureStatus.RUNNING_LEFT;
-        velocity_x = MOVE_SPEED;
-        velocity_y = 0;
+        changeAction(StickFigureStatus.RUNNING_LEFT);
     }
     
     public void moveRight() {
-        if (status == StickFigureStatus.JUMPING) {
-            return;
-        }
-        status = StickFigureStatus.RUNNING_RIGHT;
-        velocity_x = -1 * MOVE_SPEED;
-        velocity_y = 0;
+        changeAction(StickFigureStatus.RUNNING_RIGHT);
     }
     
     public void jump() {
-        if (status == StickFigureStatus.JUMPING) {
-            return;
-        }
-        status = StickFigureStatus.JUMPING;
-        velocity_y = initial_jump_velocity_y;
+        changeAction(StickFigureStatus.JUMPING);
     }
     
     public void stop() {
+        changeAction(StickFigureStatus.STOPPED);
+    }
+    
+    private void changeAction(StickFigureStatus nextStatus) {
         if (status == StickFigureStatus.JUMPING) {
             return;
         }
-        status = StickFigureStatus.STOPPED;
-        velocity_x = 0;
-        velocity_y = 0;
+        switch(nextStatus) {
+            case RUNNING_LEFT :
+                velocity_x = MOVE_SPEED;
+                velocity_y = 0;
+                break;	
+            case RUNNING_RIGHT :
+                velocity_x = -1 * MOVE_SPEED;
+                velocity_y = 0;
+                break;	
+            case JUMPING :
+                velocity_y = initial_jump_velocity_y;
+                break;	
+            case STOPPED :
+                velocity_x = 0;
+                velocity_y = 0;
+                break;	
+        }
+        status = nextStatus;
     }
     
     private void freefall() {
@@ -81,18 +86,10 @@ public class StickFigure  {
         chest_y += velocity_y;
     }
     
-    public float getChestCoordX() {
-        return chest_x;
-    }
-    
     public float getUnderFootCoordY() {
         return chest_y + DISTANCE_FROM_CHEST_TO_INSEAM + DISTANCE_FROM_INSEAM_TO_FOOT;
     }
-    
-    public float getTopOfHeadCoordY() {
-        return chest_y - NECK_LENGTH - HEAD_DIAMETER;
-    }
-    
+        
     public boolean isOnHole() {
         return stage.isHoleX(chest_x) && chest_y >= initial_chest_y;
     }
@@ -114,7 +111,8 @@ public class StickFigure  {
     }
     
     public boolean isFallen() {
-        return getTopOfHeadCoordY() > height;
+        float head_top_y = chest_y - NECK_LENGTH - HEAD_DIAMETER;
+        return head_top_y > height;
     }
     
     public void action() {

@@ -41,17 +41,17 @@ void keyPressed() {
         return;
     }
     if (key != CODED && key == ' ') {
-        stickFigure.jump();
+        stickFigure.changeActionByKey(ActionButton.SPACE);
     } else if (key == CODED) {
         switch(keyCode) {
             case LEFT:
-                stickFigure.moveLeft();
+                stickFigure.changeActionByKey(ActionButton.LEFT_ARROW);
                 break;
             case RIGHT:
-                stickFigure.moveRight();
+                stickFigure.changeActionByKey(ActionButton.RIGHT_ARROW);
                 break;
             case DOWN:
-                stickFigure.stop();
+                stickFigure.changeActionByKey(ActionButton.DOWN_ARROW);
                 break;
         }
     }

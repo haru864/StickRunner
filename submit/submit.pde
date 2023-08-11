@@ -1,3 +1,5 @@
+import java.util.HashSet;
+
 public class StickFigure  {
     
     private final float HEAD_DIAMETER = 40;
@@ -268,4 +270,160 @@ public class StickFigure  {
         line(inseam_x, inseam_y, foot_r_x, foot_r_y);
         line(inseam_x, inseam_y, foot_l_x, foot_l_y);
     }
+}
+
+public class Stage {
+    
+    private final int COLOR_OF_STAGE = #BA5039;
+    private final int COLOR_OF_HOLE = #DACCB5;
+    private final int COLOR_OF_FLAG = #F84157;
+    private final int COLOR_OF_WALL = #BBA1A4;
+    private final float STAGE_WIDTH = 2000;
+    private final float HOLE_WIDTH = 200;
+    final float START_WALL_WIDTH = 20;
+    private final float START_WALL_HEIGHT = height * 3.0 / 5.0;
+    private final float GOAL_FLAG_HEIGHT = height * 3.0 / 5.0;
+    final float START_WALL_X = 50;
+    final float GOAL_FLAG_X = STAGE_WIDTH - 150;
+    private float SURFACE_HEIGHT;
+    private final ArrayList<Float> HOLE_LEFT_EDGE_X_LIST = new ArrayList<Float>() {
+        {
+            add(600.0);
+            add(1100.0);
+            add(1400.0);
+        }
+    };
+    private final HashSet<Integer> HOLE_X_SET = new HashSet<>();
+    
+    public Stage(final float underfoot_y) {
+        SURFACE_HEIGHT = height - underfoot_y;
+        for (float holeLeftEdge : HOLE_LEFT_EDGE_X_LIST) {
+            for (int diff_x = 0; diff_x <= HOLE_WIDTH; diff_x++) {
+                HOLE_X_SET.add((int)holeLeftEdge + diff_x);
+            }
+        }
+    }
+    
+    public boolean isHoleX(float x) {
+        return HOLE_X_SET.contains(int(x));
+    }
+    
+    public void draw() {
+        // DRAW WHOLE STAGE
+        fill(COLOR_OF_STAGE);
+        rect(0, height - SURFACE_HEIGHT, STAGE_WIDTH, SURFACE_HEIGHT);
+        // DRAW HOLES
+        fill(COLOR_OF_HOLE);
+        stroke(COLOR_OF_HOLE);
+        for (float holeLeftEdgeX : HOLE_LEFT_EDGE_X_LIST) {
+            rect(holeLeftEdgeX, height - SURFACE_HEIGHT, HOLE_WIDTH, SURFACE_HEIGHT);
+            line(holeLeftEdgeX, height - SURFACE_HEIGHT, holeLeftEdgeX + HOLE_WIDTH, height - SURFACE_HEIGHT);
+        }
+        stroke(0);
+        // DRAW START WALL
+        fill(COLOR_OF_WALL);
+        rect(START_WALL_X, height - SURFACE_HEIGHT - GOAL_FLAG_HEIGHT, START_WALL_WIDTH, GOAL_FLAG_HEIGHT);
+        // DRAW GOAL FLAG
+        fill(COLOR_OF_FLAG);
+        final float top_of_flag = height - SURFACE_HEIGHT - GOAL_FLAG_HEIGHT;
+        line(GOAL_FLAG_X, height - SURFACE_HEIGHT, GOAL_FLAG_X, top_of_flag);
+        triangle(GOAL_FLAG_X, top_of_flag, GOAL_FLAG_X, top_of_flag + 30, GOAL_FLAG_X + 50, top_of_flag + 15);
+    }
+}
+
+public enum ActionButton {
+    LEFT_ARROW,
+    RIGHT_ARROW,
+    DOWN_ARROW,
+    SPACE;
+}
+
+public enum StickFigureStatus {
+    STOPPED,
+    RUNNING_LEFT,
+    RUNNING_RIGHT,
+    JUMPING,
+    FALLING;
+}
+
+final int COLOR_OF_GAME_BACKGROUND = #A6F0F7;
+final int TEXT_SIZE_BIG = 100;
+final int TEXT_SIZE_SMALL = 30;
+StickFigure stickFigure;
+Stage stage;
+
+void setup() {
+    size(800, 700);
+    smooth();
+    stickFigure = new StickFigure(width / 2.0 - 100.0, height * 2.0 / 3.0);
+    stage = new Stage(stickFigure.getUnderFootCoordY());
+    stickFigure.setStage(stage);
+}
+
+void draw() {
+    if (stickFigure.isGoal() == true) {
+        displayMessage("GOAL!!", "PRESS ANY KEY TO CLOSE", color(214, 249, 32));
+        return;
+    }
+    if (stickFigure.isFallen() == true) {
+        displayMessage("FAILED...", "PRESS ENTER TO RETRY,\nOTHERS TO CLOSE");
+        return;
+    }
+    background(COLOR_OF_GAME_BACKGROUND);
+    displayManual();
+    stickFigure.action();
+    stage.draw();
+    stickFigure.draw();
+}
+
+void keyPressed() {
+    if (stickFigure.isGoal() == true) {
+        exit();
+    }
+    if (stickFigure.isFallen() == true) {
+        if (key != CODED && key == ENTER) {
+            setup();
+        } else {
+            exit();
+        }
+        return;
+    }
+    if (key != CODED && key == ' ') {
+        stickFigure.changeActionByKey(ActionButton.SPACE);
+    } else if (key == CODED) {
+        switch(keyCode) {
+            case LEFT:
+                stickFigure.changeActionByKey(ActionButton.LEFT_ARROW);
+                break;
+            case RIGHT:
+                stickFigure.changeActionByKey(ActionButton.RIGHT_ARROW);
+                break;
+            case DOWN:
+                stickFigure.changeActionByKey(ActionButton.DOWN_ARROW);
+                break;
+        }
+    }
+}
+
+void displayMessage(String title, String message, color...backGroundColor) {
+    if (backGroundColor.length != 0) {
+        background(backGroundColor[0]);
+    }
+    textAlign(CENTER, CENTER);
+    textSize(TEXT_SIZE_BIG);
+    fill(0);
+    text(title, width / 2, height / 2 - TEXT_SIZE_BIG * 0.7);
+    textSize(TEXT_SIZE_SMALL);
+    text(message, width / 2, height / 2 + TEXT_SIZE_BIG * 0.5);
+    return;
+}
+
+void displayManual() {
+    textAlign(CENTER, CENTER);
+    textSize(TEXT_SIZE_SMALL);
+    fill(0);
+    text("←:running to the left", width / 2, 10);
+    text("→:running to the right", width / 2, 40);
+    text("↑:stop running", width / 2, 70);
+    text("SPACE:running to the left", width / 2, 100);
 }

@@ -189,16 +189,6 @@ public class StickFigure  {
                 drawSymmetricalBody();
                 break;
             case RUNNING_LEFT:
-                // RUNNING_RIGHTと同じ処理
-                // フォールスルーだとフォーマッタがcase文を壊すので2回記載
-                arm_r_deg += angular_velocity;
-                leg_r_deg += angular_velocity;
-                if (radians(arm_r_deg) > maxAngle
-                    || radians(arm_r_deg) < minAngle) {
-                    angular_velocity *= -1;
-                }
-                drawSymmetricalBody();
-                break;
             case RUNNING_RIGHT:
                 arm_r_deg += angular_velocity;
                 leg_r_deg += angular_velocity;
@@ -422,8 +412,8 @@ void displayManual() {
     textAlign(CENTER, CENTER);
     textSize(TEXT_SIZE_SMALL);
     fill(0);
-    text("←:running to the left", width / 2, 10);
-    text("→:running to the right", width / 2, 40);
-    text("↑:stop running", width / 2, 70);
+    text("LEFT_ARROW:running to the left", width / 2, 10);
+    text("RIGHT_ARROW:running to the right", width / 2, 40);
+    text("DOWN_ARROW:stop running", width / 2, 70);
     text("SPACE:running to the left", width / 2, 100);
 }
